@@ -10,6 +10,39 @@ mutable struct NodeInfo
     neighbors::Vector{Int}
 end
 
+#=
+> Shuffle the nodes.
+> Iterate through the nodes.
+>   Change the current node's label to the neighbor's label that increases the score the most.
+>   (Break ties at random, and skip the node if no label change improves the score.)
+>   
+=#
+
+function our_algorithm(g, node_info)
+    shuffled_nodes = shuffle(1:nv(g))
+    current_colors = [node_info[k].label for k in 1:nv(g)]
+    current_score = get_score(g, node_info, current_colors)
+    for n in shuffled_nodes
+        # @show n
+        score_changes = Dict{Int, Int}()
+        new_coloring = [node_info[k].label for k in 1:nv(g)]
+        # @show node_info[n].neighbors 
+        for nbr in node_info[n].neighbors
+            new_coloring[n] = node_info[nbr].label 
+            score_changes[nbr] = get_score(g, node_info, new_coloring) - current_score
+        end
+        # @show score_changes
+        max_change = maximum(values(score_changes))
+        if max_change > 0
+            keys_at_max = [key for (key, value) in score_changes if value == max_change]
+            best_key = rand(keys_at_max)
+            # @show best_key
+            node_info[n].label = node_info[best_key].label
+            # @show node_info
+        end
+    end
+end
+
 function label_propagation(g, node_info)
     label_changed = true
     while label_changed
@@ -26,7 +59,8 @@ function label_propagation(g, node_info)
     end
 end
 
-function main(filename = "graph05.txt")
+
+function main(filename = "graph03.txt")
     edge_list = read_edges(filename)
     g = build_graph(edge_list)
 
@@ -37,7 +71,12 @@ function main(filename = "graph05.txt")
     end
     
     # Run label propagation
-    label_propagation(g, node_info)
+    @show node_info
+    our_algorithm(g, node_info)
+    @show node_info
+    our_algorithm(g, node_info)
+    @show node_info
+    our_algorithm(g, node_info)
 
     # Use a fixed-size color palette for cycling, e.g., 16 colors
     palette_size = 16
