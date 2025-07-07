@@ -36,7 +36,7 @@ function build_graph(edges)
     return g
 end
 
-function interactive_plot_graph(g, node_info, node_colors, node_text_colors, node_color_indices, color_palette)
+function interactive_plot_graph(g, node_info, node_colors, node_text_colors, node_color_indices, color_palette, label_to_color_index)
     n = nv(g)
     edges = collect(Graphs.edges(g))
     width, height = 800, 600
@@ -48,6 +48,9 @@ function interactive_plot_graph(g, node_info, node_colors, node_text_colors, nod
     node_colors_obs = Observable(copy(node_colors))
     node_color_indices_obs = Observable(copy(node_color_indices))
     node_text_colors_obs = Observable(copy(node_text_colors))
+    
+    # Create reverse mapping from color index to label
+    color_index_to_label = Dict(v => k for (k, v) in label_to_color_index)
 
     scene = Scene(size = (width, height), camera = campixel!)
     # Observable for score, initialize with the correct score
@@ -123,8 +126,12 @@ function interactive_plot_graph(g, node_info, node_colors, node_text_colors, nod
                         new_text_colors = copy(node_text_colors_obs[])
                         new_text_colors[idx] = Colors.Lab(RGB(new_colors[idx])).l > 50 ? :black : :white
                         node_text_colors_obs[] = new_text_colors
-                        # Update score using the current color indices
-                        score = get_score(g, node_info, node_color_indices_obs[])
+                        # Update the node_info label to match the actual label (not color index)
+                        actual_label = get(color_index_to_label, new_color_indices[idx], new_color_indices[idx])
+                        node_info[idx].label = actual_label
+                        # Update score using the updated node_info
+                        current_color_indices = [node_info[i].label for i in 1:length(node_info)]
+                        score = get_score(g, node_info, current_color_indices)
                         score_obs[] = score
                     end
                 end
