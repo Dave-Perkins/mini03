@@ -1,54 +1,57 @@
 #=
-Ash's score function
+Modularity score function for weighted graphs,
+entirely written by Copilot + Claude Sonnet
 =#
 
-function get_score(g, node_info, node_color_indices)
-
-    labels = [(node, info.label) for (node, info) in node_info]
-    label_groups = Dict{Int, Vector{Int}}()
-    for (node, label) in labels
-        push!(get!(label_groups, label, Int[]), node)
+function get_score(g, edge_weights, node_info, node_color_indices)
+    # Calculate modularity score for weighted graphs
+    # Q = (1/2m) * Σ[A_ij - (k_i * k_j)/(2m)] * δ(c_i, c_j)
+    
+    n = nv(g)  # number of vertices
+    
+    # Calculate total weight (2m) and weighted degrees
+    total_weight = 0.0
+    weighted_degrees = zeros(Float64, n)
+    
+    # Get edge weights and calculate total weight and degrees
+    for edge in edges(g)
+        i, j = src(edge), dst(edge)
+        # Get the actual weight from edge_weights dictionary
+        weight = get(edge_weights, (i, j), 1.0)
+        
+        total_weight += weight
+        weighted_degrees[i] += weight
+        weighted_degrees[j] += weight
     end
-    communities = collect(values(label_groups))
-
-    t = length(communities)
-    total_score = 0.0
-
-    for (i, community) in enumerate(communities)
-        println("\nGroup $i: ", community)
-
-        internal_edges = Set{Tuple{Int, Int}}()
-        for i in eachindex(community), j in (i+1):length(community)
-            u, v = community[i], community[j]
-            if has_edge(g, u, v)
-                push!(internal_edges, (min(u, v), max(u, v)))
-            end
-        end
-        println("  Internal edges: ", collect(internal_edges))
-
-        max_internal = length(community) * (length(community) - 1) / 2
-
-        external_edges = Set{Tuple{Int, Int}}()
-        for u in community
-            for v in neighbors(g, u)
-                if v ∉ community
-                    push!(external_edges, (min(u, v), max(u, v)))
+    
+    # For undirected graphs, we've double-counted, so 2m = total_weight
+    two_m = total_weight
+    
+    # Calculate modularity
+    modularity = 0.0
+    
+    for i in 1:n
+        for j in 1:n
+            # Check if nodes i and j are in the same community
+            if node_color_indices[i] == node_color_indices[j]
+                # Get actual edge weight A_ij
+                A_ij = 0.0
+                if has_edge(g, i, j)
+                    # Get the actual weight from edge_weights dictionary
+                    A_ij = get(edge_weights, (i, j), 1.0)
                 end
+                
+                # Expected weight under null model
+                expected_weight = (weighted_degrees[i] * weighted_degrees[j]) / two_m
+                
+                # Add contribution to modularity
+                modularity += (A_ij - expected_weight)
             end
         end
-        println("  External edges: ", collect(external_edges))
-
-        external_possible = length(community) * (nv(g) - length(community))
-        internal_ratio = max_internal == 0 ? 0.0 : length(internal_edges) / max_internal
-        external_ratio = external_possible == 0 ? 0.0 : length(external_edges) / external_possible
-#finally here i intergrate the internal calc and external calc together to my scoring formula excluding deviding it by the total goups t
-        group_score = internal_ratio * (1 - external_ratio)
-        println("  Group score: ", round(group_score, digits=3))
-
-        total_score += group_score
     end
-
-    final_score = total_score / t
-    println("\nScore: ", round(final_score, digits=3))
-    return final_score
+    
+    # Normalize by 2m
+    modularity = modularity / two_m
+    
+    return modularity
 end

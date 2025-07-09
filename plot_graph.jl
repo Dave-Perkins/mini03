@@ -7,6 +7,17 @@ using GraphMakie
 using GLMakie
 using GeometryBasics
 using LinearAlgebra: norm
+
+# Function to safely activate GLMakie
+function safe_activate_glmakie()
+    try
+        GLMakie.activate!()
+        return true
+    catch e
+        println("Warning: Could not activate GLMakie: $e")
+        return false
+    end
+end
 const Point2f0 = GeometryBasics.Point2f
 import Graphs: edges
 
@@ -15,8 +26,17 @@ function read_edges(filename)
     open(filename, "r") do f
         for line in eachline(f)
             s = split(strip(line))
+            # Skip comment lines
+            if startswith(strip(line), "#") || isempty(strip(line))
+                continue
+            end
+            # Handle both weighted (3 columns) and unweighted (2 columns) formats
             if length(s) == 2 && all(x -> occursin(r"^\d+$", x), s)
-                push!(edge_list, (parse(Int, s[1]), parse(Int, s[2])))
+                # Unweighted edge, default weight = 1.0
+                push!(edge_list, (parse(Int, s[1]), parse(Int, s[2]), 1.0))
+            elseif length(s) == 3 && all(x -> occursin(r"^\d+$", x), s[1:2]) && occursin(r"^\d+(\.\d+)?$", s[3])
+                # Weighted edge
+                push!(edge_list, (parse(Int, s[1]), parse(Int, s[2]), parse(Float64, s[3])))
             end
         end
     end
@@ -26,17 +46,28 @@ end
 function build_graph(edges)
     if isempty(edges)
         println("No edges found in input file. Displaying an empty graph.")
-        return SimpleGraph(0)
+        return SimpleGraph(0), Dict{Tuple{Int,Int}, Float64}()
     end
     nodes = unique(vcat([e[1] for e in edges], [e[2] for e in edges]))
     g = SimpleGraph(maximum(nodes))
-    for (u, v) in edges
+    edge_weights = Dict{Tuple{Int,Int}, Float64}()
+    
+    for (u, v, weight) in edges
         add_edge!(g, u, v)
+        # Store weights for both directions (undirected graph)
+        edge_weights[(u, v)] = weight
+        edge_weights[(v, u)] = weight
     end
-    return g
+    return g, edge_weights
 end
 
-function interactive_plot_graph(g, node_info, node_colors, node_text_colors, node_color_indices, color_palette, label_to_color_index)
+function interactive_plot_graph(g, edge_weights, node_info, node_colors, node_text_colors, node_color_indices, color_palette, label_to_color_index)
+    # Safely activate GLMakie backend
+    if !safe_activate_glmakie()
+        println("Failed to activate GLMakie backend. Please restart Julia.")
+        return nothing
+    end
+    
     n = nv(g)
     edges = collect(Graphs.edges(g))
     width, height = 800, 600
@@ -52,15 +83,30 @@ function interactive_plot_graph(g, node_info, node_colors, node_text_colors, nod
     # Create reverse mapping from color index to label
     color_index_to_label = Dict(v => k for (k, v) in label_to_color_index)
 
-    scene = Scene(size = (width, height), camera = campixel!)
+    # Create a new figure and scene
+    fig = Figure(size = (width, height))
+    scene = fig.scene
+    
     # Observable for score, initialize with the correct score
-    initial_score = get_score(g, node_info, node_color_indices)
+    initial_score = get_score(g, edge_weights, node_info, node_color_indices)
     score_obs = Observable(initial_score)
     # Display score in the plot window (top left)
-    text!(scene, lift(s -> "Score: $(s)", score_obs), position=Point2f0(20, height-30), align=(:left, :center), color=:black, fontsize=28)
+    text!(scene, lift(s -> "Score: $(round(s, digits=3))", score_obs), position=Point2f0(20, height-30), align=(:left, :center), color=:black, fontsize=28)
 
     # Plot edges
     [lines!(scene, lift(pos -> [pos[src(e)], pos[dst(e)]], positions), color=:gray, linewidth=2) for e in edges]
+    
+    # Plot edge weights as text labels at the midpoint of each edge
+    for e in edges
+        src_node, dst_node = src(e), dst(e)
+        weight = get(edge_weights, (src_node, dst_node), 1.0)
+        # Calculate midpoint position between the two nodes
+        midpoint_pos = lift(pos -> (pos[src_node] + pos[dst_node]) / 2, positions)
+        # Add text label showing the weight
+        text!(scene, string(weight), position=midpoint_pos, align=(:center, :center), 
+              color=:red, fontsize=14, strokewidth=1, strokecolor=:white)
+    end
+    
     # Plot nodes as scatter, use node_colors_obs directly
     scatter!(scene, lift(pos -> first.(pos), positions), lift(pos -> last.(pos), positions),
         color=node_colors_obs, strokewidth=2, strokecolor=:black, markersize=60)
@@ -131,7 +177,7 @@ function interactive_plot_graph(g, node_info, node_colors, node_text_colors, nod
                         node_info[idx].label = actual_label
                         # Update score using the updated node_info
                         current_color_indices = [node_info[i].label for i in 1:length(node_info)]
-                        score = get_score(g, node_info, current_color_indices)
+                        score = get_score(g, edge_weights, node_info, current_color_indices)
                         score_obs[] = score
                     end
                 end
@@ -143,7 +189,30 @@ function interactive_plot_graph(g, node_info, node_colors, node_text_colors, nod
         end
     end
 
-    println("You can view the graph now!")
-    display(scene)
-    return scene
+    println("🎨 Interactive graph visualization is ready!")
+    println("💡 Instructions:")
+    println("   • Left-click nodes to cycle colors forward")
+    println("   • Right-click nodes to cycle colors backward")
+    println("   • Drag nodes to move them around")
+    println("   • Score updates automatically when colors change")
+    
+    # Display the figure
+    try
+        display(fig)
+        
+        # Keep the window open - wait for user input
+        println("\n📊 Graph window is now open and interactive!")
+        println("Press Enter here in the terminal to close the graph window...")
+        readline()
+        
+        # Clean up - just close all GLMakie windows
+        GLMakie.closeall()
+        println("✅ Graph window closed.")
+        
+    catch e
+        println("❌ Display error: $e")
+        println("Try restarting Julia if the issue persists.")
+    end
+    
+    return fig
 end
