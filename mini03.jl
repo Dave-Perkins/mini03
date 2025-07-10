@@ -1,9 +1,9 @@
 include("plot_graph.jl")
 include("scoring.jl")
-using Makie.Colors 
 using Random
 using StatsBase
 using Colors
+using Makie: distinguishable_colors
 
 # Function to clear graphics state and restart GLMakie
 function restart_graphics()
@@ -17,26 +17,10 @@ function restart_graphics()
     end
 end
 
-# Suppress all @show statements
-# import Base.@show
-# macro show(x) end
-
-# Suppress all println statements
-# import Base.println
-# println(args...) = nothing
-
 mutable struct NodeInfo
     label::Int
     neighbors::Vector{Int}
 end
-
-#=
-> Shuffle the nodes.
-> Iterate through the nodes.
->   Change the current node's label to the neighbor's label that increases the score the most.
->   (Break ties at random, and skip the node if no label change improves the score.)
->   
-=#
 
 function our_algorithm(g, edge_weights, node_info)
     shuffled_nodes = shuffle(1:nv(g))
@@ -78,6 +62,7 @@ function label_propagation(g, node_info)
     while label_changed
         label_changed = false
         shuffled_nodes = shuffle(1:nv(g))
+
         for n in shuffled_nodes
             neighbor_labels = [node_info[j].label for j in node_info[n].neighbors]
             most_common = findmax(countmap(neighbor_labels))[2]
@@ -109,7 +94,7 @@ function main(filename)
 
     # Use a fixed-size color palette for cycling, e.g., 16 colors
     palette_size = 16
-    color_palette = Makie.distinguishable_colors(palette_size)
+    color_palette = distinguishable_colors(palette_size)
 
     # Assign initial color indices based on label AFTER running algorithms
     labels = unique([node.label for node in values(node_info)])
@@ -138,6 +123,7 @@ function run_graph(filename)
     
     try
         result = main(filename)
+
         println("="^50)
         println("🎉 Workflow completed successfully!")
         return result
@@ -174,7 +160,7 @@ function run_graph_interactive(filename)
 
         # Setup colors
         palette_size = 16
-        color_palette = Makie.distinguishable_colors(palette_size)
+        color_palette = distinguishable_colors(palette_size)
         labels = unique([node.label for node in values(node_info)])
         label_to_color_index = Dict(labels[i] => mod1(i, palette_size) for i in eachindex(labels))
         node_color_indices = [label_to_color_index[node_info[n].label] for n in 1:nv(g)]
@@ -194,8 +180,8 @@ function run_graph_interactive(filename)
             
             if choice == "1"
                 println("🎨 Opening interactive visualization...")
-                result = interactive_plot_graph(g, edge_weights, node_info, node_colors, node_text_colors, node_color_indices, color_palette, label_to_color_index)
-                
+                interactive_plot_graph(g, edge_weights, node_info, node_colors, node_text_colors, node_color_indices, color_palette, label_to_color_index)
+
                 # Update colors after interaction
                 node_color_indices = [label_to_color_index[node_info[n].label] for n in 1:nv(g)]
                 node_colors = [color_palette[i] for i in node_color_indices]
