@@ -1,53 +1,60 @@
 # 🌟 Julia Graph Analysis Project
 
-A robust community detection and modularity scoring system for weighted graphs with both interactive and stable workflows.
+A robust community detection and modularity scoring system for weighted graphs with interactive visualization and optimized workflows.
 
 ## 🚀 Quick Start
 
-### Option 1: Main Launcher (Recommended)
-```bash
-julia launcher.jl
-```
-- Menu-driven interface
-- Both interactive (GLMakie) and stable (CairoMakie) workflows
-- Automatic package installation
-- Batch processing support
-
-### Option 2: Interactive Launcher
+### Option 1: Interactive Launcher (Recommended)
 ```bash
 julia interactive_launcher.jl [filename]
 ```
-- Interactive workflows only (GLMakie)
+- Interactive GLMakie visualization
 - Command-line argument support
 - Menu-driven file selection
+- Automatic package installation
+
+### Option 2: REPL Usage
+```julia
+julia> include("repl_setup.jl")
+julia> run_graph("graphs/graph03.txt")
+julia> run_graph_interactive("graphs/graph05.txt")
+```
+- Perfect for development and testing
+- Direct function access
+- No launcher overhead
 
 ### Option 3: Direct Usage
-```bash
-# Stable workflow (saves PNG files)
-julia -e "include(\"mini03_stable.jl\"); run_stable_workflow(\"graphs/graph03.txt\")"
-
-# Interactive workflow (opens windows)
+```julia
+# Main workflow (interactive visualization)
 julia -e "include(\"mini03.jl\"); run_graph(\"graphs/graph03.txt\")"
+```
 ```
 
 ## 📁 Project Structure
 
 ```
 mini03/
-├── launcher.jl              # Main launcher (interactive + stable)
-├── interactive_launcher.jl  # Interactive-only launcher
-├── mini03.jl                # Interactive workflow (GLMakie)
-├── mini03_stable.jl         # Stable workflow (CairoMakie)
-├── plot_graph.jl            # GLMakie plotting functions
-├── plot_graph_stable.jl     # CairoMakie plotting functions
-├── scoring.jl               # Original modularity scoring
-├── scoring_stable.jl        # Adjacency-list modularity scoring
-└── graphs/                  # All graph files and visualizations
-    ├── graph01.txt          # Test graph files
-    ├── graph02.txt
-    ├── ...
-    ├── graph_input.txt      # Default input file
-    └── *.png               # Generated visualizations
+├── interactive_launcher.jl  # Main interactive launcher
+├── repl_setup.jl            # REPL-friendly setup script
+├── mini03.jl                # Core graph analysis functions
+├── plot_graph.jl            # Interactive visualization (GLMakie)
+├── scoring.jl               # Modularity scoring with corrected calculation
+├── graphs/                  # All graph files and outputs
+│   ├── graph01.txt          # Test graph files
+│   ├── graph02.txt
+│   ├── ...
+│   └── graph_input.txt      # Default input file
+├── docs/                    # Project documentation
+│   ├── README.md            # Documentation index
+│   ├── PROJECT_STATUS.md    # Current project status
+│   ├── SOLUTION.md          # Technical solution details
+│   └── *.md                 # Development history and fixes
+└── debug/                   # Debug and development files
+    ├── README.md            # Documentation for debug files
+    ├── debug_*.jl           # Various debugging scripts
+    ├── test_*.jl            # Comprehensive test scripts
+    ├── *_stable.jl          # Backup versions
+    └── verify_modularity.jl # Manual calculation verification
 ```
 
 ## 🎯 Features
@@ -57,7 +64,8 @@ mini03/
 - ✅ Click nodes to change community assignments
 - ✅ Drag nodes to rearrange layout
 - ✅ Live modularity score updates
-- ✅ Automatic graphics backend restart on errors
+- ✅ Corrected modularity calculation (fixed -2.0 bug)
+- ✅ Robust color mapping and KeyError handling
 
 ### Stable Workflow (CairoMakie)
 - ✅ Reliable PNG file output
@@ -154,14 +162,24 @@ julia launcher.jl
 - ✅ **Consistent file organization**: Both single file and batch processing outputs go to the same location
 - ✅ **Clean workspace**: No more visualization files scattered in the main directory
 
+## 📚 Documentation
+
+For detailed documentation, see the [`docs/`](docs/) folder:
+
+- **[`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)** - Current project capabilities and status
+- **[`docs/SOLUTION.md`](docs/SOLUTION.md)** - Technical solution details and algorithms
+- **[`docs/CLEANUP_SUMMARY.md`](docs/CLEANUP_SUMMARY.md)** - Workspace organization summary
+- **[`docs/INTERACTIVE_ENHANCEMENTS.md`](docs/INTERACTIVE_ENHANCEMENTS.md)** - Interactive feature improvements
+- **[`docs/LAUNCHER_FIXES.md`](docs/LAUNCHER_FIXES.md)** - Launcher system development history
+
 ## 🎯 Recommendations
 
-1. **For reliable output**: Use the stable workflow (options 4-6 in main launcher)
-2. **For exploration**: Use the interactive workflow (options 1-3 in main launcher)
-3. **For automation**: Use direct function calls with `mini03_stable.jl`
-4. **For testing**: Use the interactive launcher with command-line arguments
+1. **For reliable output**: Use the interactive launcher (`interactive_launcher.jl`)
+2. **For development**: Use REPL setup (`repl_setup.jl`) 
+3. **For exploration**: Use the interactive workflow with visualization
+4. **For automation**: Use direct function calls with `mini03.jl`
 
 ---
 
 **Status**: ✅ Complete and fully functional
-**Last Updated**: December 2024
+**Last Updated**: July 2025

@@ -89,7 +89,9 @@ function main(filename)
     # println("Running label propagation algorithm...")
     # label_propagation(g, node_info)
 
-    println("Running the updated algorithm...")
+    println("Running the updated algorithm three times...")
+    our_algorithm(g, edge_weights, node_info)
+    our_algorithm(g, edge_weights, node_info)
     our_algorithm(g, edge_weights, node_info)
 
     # Use a fixed-size color palette for cycling, e.g., 16 colors
