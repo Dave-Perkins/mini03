@@ -173,10 +173,25 @@ function interactive_plot_graph(g, edge_weights, node_info, node_colors, node_te
                         new_text_colors[idx] = Colors.Lab(RGB(new_colors[idx])).l > 50 ? :black : :white
                         node_text_colors_obs[] = new_text_colors
                         # Update the node_info label to match the actual label (not color index)
-                        actual_label = get(color_index_to_label, new_color_indices[idx], new_color_indices[idx])
+                        # If the color index doesn't exist in our mapping, create a new unique label
+                        if haskey(color_index_to_label, new_color_indices[idx])
+                            actual_label = color_index_to_label[new_color_indices[idx]]
+                        else
+                            # Create a new unique label for this color index
+                            # Use a label that's unique and doesn't conflict with existing ones
+                            existing_labels = Set([node_info[i].label for i in 1:nv(g)])
+                            new_label = 1
+                            while new_label in existing_labels
+                                new_label += 1
+                            end
+                            actual_label = new_label
+                            # Update the mapping for future use
+                            color_index_to_label[new_color_indices[idx]] = actual_label
+                        end
                         node_info[idx].label = actual_label
                         # Update score using the updated node_info
-                        current_color_indices = [node_info[i].label for i in 1:length(node_info)]
+                        # Create current_color_indices array indexed by node number
+                        current_color_indices = [node_info[i].label for i in 1:nv(g)]
                         score = get_score(g, edge_weights, node_info, current_color_indices)
                         score_obs[] = score
                     end

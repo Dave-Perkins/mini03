@@ -2,12 +2,16 @@
 
 # Interactive Graph Analysis Launcher
 # Only loads GLMakie/GraphMakie for interactive windows
-# Usage: julia interactive_launcher.jl [filename]
+# Usage: 
+#   From command line: julia interactive_launcher.jl [filename]
+#   From Julia REPL: include("repl_setup.jl")
 
 using Pkg
 using Printf
 
 println("📊 INTERACTIVE GRAPH ANALYSIS LAUNCHER")
+println("="^50)
+println("💡 REPL USERS: Use include(\"repl_setup.jl\") instead!")
 println("="^50)
 
 function ensure_interactive_packages()
