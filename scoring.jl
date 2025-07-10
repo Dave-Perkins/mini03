@@ -31,7 +31,7 @@ function get_score(g, edge_weights, node_info, node_color_indices)
     modularity = 0.0
     
     for i in 1:n
-        for j in 1:n
+        for j in i:n  # Only iterate j >= i to avoid double counting
             # Check if nodes i and j are in the same community
             if node_color_indices[i] == node_color_indices[j]
                 # Get actual edge weight A_ij
@@ -44,8 +44,16 @@ function get_score(g, edge_weights, node_info, node_color_indices)
                 # Expected weight under null model
                 expected_weight = (weighted_degrees[i] * weighted_degrees[j]) / two_m
                 
-                # Add contribution to modularity
-                modularity += (A_ij - expected_weight)
+                # Contribution to modularity
+                contribution = A_ij - expected_weight
+                
+                # For diagonal terms (i == j), count once
+                # For off-diagonal terms (i != j), count twice (since we're only iterating upper triangle)
+                if i == j
+                    modularity += contribution
+                else
+                    modularity += 2 * contribution
+                end
             end
         end
     end

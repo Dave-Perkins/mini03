@@ -101,8 +101,11 @@ function main(filename)
         node_info[n] = NodeInfo(n, collect(neighbors(g, n)))
     end
     
-    println("Running label propagation algorithm...")
-    label_propagation(g, node_info)
+    # println("Running label propagation algorithm...")
+    # label_propagation(g, node_info)
+
+    println("Running the updated algorithm...")
+    our_algorithm(g, edge_weights, node_info)
 
     # Use a fixed-size color palette for cycling, e.g., 16 colors
     palette_size = 16

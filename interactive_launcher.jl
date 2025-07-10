@@ -138,36 +138,71 @@ function main()
     println()
     
     print("Enter graph number or filename: ")
-    input = strip(readline())
+    flush(stdout)  # Ensure prompt is displayed
     
-    # Check if it's a number
     try
-        graph_idx = parse(Int, input)
-        if 1 <= graph_idx <= length(available_graphs)
-            filename = available_graphs[graph_idx]
-            println("🚀 Processing $filename with INTERACTIVE workflow...")
-            try
-                Base.invokelatest(run_graph, filename)
-                println("✅ Processing completed successfully!")
-            catch workflow_error
-                println("❌ Error during processing: $workflow_error")
-            end
-        else
-            println("❌ Invalid graph number")
+        input = strip(readline(stdin))
+        
+        if isempty(input)
+            println("❌ No input provided")
+            return
         end
-    catch parse_error
-        # Treat as filename
-        if isfile(input)
-            println("🚀 Processing $input with INTERACTIVE workflow...")
-            try
-                Base.invokelatest(run_graph, input)
-                println("✅ Processing completed successfully!")
-            catch workflow_error
-                println("❌ Error during processing: $workflow_error")
+        
+        println("📝 You entered: '$input'")
+        
+        # Check if it's a number
+        try
+            graph_idx = parse(Int, input)
+            if 1 <= graph_idx <= length(available_graphs)
+                filename = available_graphs[graph_idx]
+                println("🚀 Processing $filename with INTERACTIVE workflow...")
+                try
+                    Base.invokelatest(run_graph, filename)
+                    println("✅ Processing completed successfully!")
+                catch workflow_error
+                    println("❌ Error during processing: $workflow_error")
+                end
+            else
+                println("❌ Invalid graph number. Please enter 1-$(length(available_graphs))")
             end
-        else
-            println("❌ File not found: $input")
+        catch parse_error
+            # Treat as filename
+            # Try different path variations
+            test_paths = [
+                input,
+                joinpath("graphs", input),
+                joinpath("graphs", input * ".txt")
+            ]
+            
+            filename_found = nothing
+            for test_path in test_paths
+                if isfile(test_path)
+                    filename_found = test_path
+                    break
+                end
+            end
+            
+            if filename_found !== nothing
+                println("🚀 Processing $filename_found with INTERACTIVE workflow...")
+                try
+                    Base.invokelatest(run_graph, filename_found)
+                    println("✅ Processing completed successfully!")
+                catch workflow_error
+                    println("❌ Error during processing: $workflow_error")
+                end
+            else
+                println("❌ File not found: $input")
+                println("💡 Available files:")
+                for (i, file) in enumerate(available_graphs)
+                    println("   $i. $file")
+                end
+            end
         end
+        
+    catch input_error
+        println("❌ Error reading input: $input_error")
+        println("💡 Try running the script from command line instead:")
+        println("   julia interactive_launcher.jl graphs/graph03.txt")
     end
 end
 
