@@ -96,19 +96,17 @@ function interactive_plot_graph(g, edge_weights, node_info, node_colors, node_te
     # Plot edges
     [lines!(scene, lift(pos -> [pos[src(e)], pos[dst(e)]], positions), color=:gray, linewidth=2) for e in edges]
     
-    # Plot edge weights as text labels at the midpoint of each edge (only if not all weights are 1.0)
-    all_weights_are_one = all(get(edge_weights, (src(e), dst(e)), 1.0) == 1.0 for e in edges)
-    if !all_weights_are_one
-        for e in edges
-            src_node, dst_node = src(e), dst(e)
-            weight = get(edge_weights, (src_node, dst_node), 1.0)
-            # Calculate midpoint position between the two nodes
-            midpoint_pos = lift(pos -> (pos[src_node] + pos[dst_node]) / 2, positions)
-            # Add text label showing the weight
-            text!(scene, string(weight), position=midpoint_pos, align=(:center, :center),
-                  color=:red, fontsize=14, strokewidth=1, strokecolor=:white)        end
-
-    end    
+    # Plot edge weights as text labels at the midpoint of each edge
+    for e in edges
+        src_node, dst_node = src(e), dst(e)
+        weight = get(edge_weights, (src_node, dst_node), 1.0)
+        # Calculate midpoint position between the two nodes
+        midpoint_pos = lift(pos -> (pos[src_node] + pos[dst_node]) / 2, positions)
+        # Add text label showing the weight
+        text!(scene, string(weight), position=midpoint_pos, align=(:center, :center), 
+              color=:red, fontsize=14, strokewidth=1, strokecolor=:white)
+    end
+    
     # Plot nodes as scatter, use node_colors_obs directly
     scatter!(scene, lift(pos -> first.(pos), positions), lift(pos -> last.(pos), positions),
         color=node_colors_obs, strokewidth=2, strokecolor=:black, markersize=60)
