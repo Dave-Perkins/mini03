@@ -3,7 +3,7 @@ Modularity score function for weighted graphs,
 entirely written by Copilot + Claude Sonnet
 =#
 
-function get_score(g, edge_weights, node_info, node_color_indices; debug=true)
+function get_score(g, edge_weights, node_info, node_color_indices; debug=false)
     # Calculate modularity score for weighted graphs
     # Q = (1/2m) * Σ[A_ij - (k_i * k_j)/(2m)] * δ(c_i, c_j)
 
@@ -66,9 +66,6 @@ function get_score(g, edge_weights, node_info, node_color_indices; debug=true)
     
     for i in 1:n
         for j in 1:n
-            if i == j 
-                continue 
-            end
             # Check if nodes i and j are in the same community
             if node_color_indices[i] == node_color_indices[j]
                 # Get actual edge weight A_ij
