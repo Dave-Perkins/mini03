@@ -23,13 +23,13 @@ mutable struct NodeInfo
 end
 
 function our_algorithm(g, edge_weights, node_info)
-    shuffled_nodes = shuffle(1:nv(g))
     current_colors = [node_info[k].label for k in 1:nv(g)]
     current_score = get_score(g, edge_weights, node_info, current_colors)
     changes_made = 0
     label_changed = true
 
     while label_changed
+        shuffled_nodes = shuffle(1:nv(g))
         label_changed = false
         for n in shuffled_nodes
             score_changes = Dict{Int, Float64}()  # Changed to Float64 for score values
