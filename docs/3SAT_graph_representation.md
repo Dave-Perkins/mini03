@@ -36,8 +36,10 @@ A **3-SAT formula** is a conjunction (AND) of clauses.
 - **Edges**: Connect two literals if they appear together in the same clause
 - **Edge Weights**: Number of clauses in which the two literals appear together
 
-### Example Instance
+### Example: 3-SAT Instance
+Instance: (x₁ ∨ ¬x₂ ∨ x₃) ∧ (¬x₁ ∨ x₂ ∨ ¬x₃) ∧ (x₁ ∨ x₂ ∨ x₃)
 Variables: x₁, x₂, x₃
+Literals: x₁, x₂, x₃, ¬x₁, ¬x₂, ¬x₃
 Clauses: 
 - C₁: (x₁ ∨ ¬x₂ ∨ x₃)
 - C₂: (¬x₁ ∨ x₂ ∨ ¬x₃)  

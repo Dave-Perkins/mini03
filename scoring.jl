@@ -3,9 +3,9 @@ Modularity score function for weighted graphs,
 entirely written by Copilot + Claude Sonnet
 =#
 
-function get_score(g, edge_weights, node_info, node_color_indices; debug=true)
+function get_score(g, edge_weights, node_info, node_color_indices; debug=false)
     # Calculate modularity score for weighted graphs
-    # Q = (1/2m) * Σ[A_ij - (k_i * k_j)/(2m)] * δ(c_i, c_j)
+    # Q = 1/(2m) * Σ[A_ij - (k_i * k_j)/(2m)] * δ(c_i, c_j)
 
     # m = total weight on all edges 
     # A_ij = weight of edge connecting nodes i and j 

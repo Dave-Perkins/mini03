@@ -79,7 +79,6 @@ function label_propagation(g, node_info)
     end
 end
 
-
 function main(filename)
     println("Loading graph from $filename...")
     edge_list = read_edges(filename)

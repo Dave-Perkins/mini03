@@ -1,6 +1,9 @@
 # 3-SAT Literal Graph: graph13-3sat-large.txt
-# 
+#
+
+
 # 3-SAT Instance (5 variables, 6 clauses):
+# Instance: (x₁ ∨ ¬x₂ ∨ x₃) ∧ (¬x₁ ∨ x₄ ∨ ¬x₅) ∧ (x₂ ∨ x₃ ∨ ¬x₄) ∧ (¬x₃ ∨ x₅ ∨ x₁) ∧ (x₄ ∨ ¬x₁ ∨ x₂) ∧ (¬x₂ ∨ ¬x₃ ∨ x₅)
 # Variables: x₁, x₂, x₃, x₄, x₅
 # Clauses: 
 #   C₁: (x₁ ∨ ¬x₂ ∨ x₃)
