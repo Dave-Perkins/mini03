@@ -16,6 +16,28 @@ julia> run_graph("graphs/graph03.txt")
 julia> research_pipeline(5, 15, seed=123)
 ```
 
+## ⚡ Quick Reference
+
+### Most Common Commands
+```bash
+# Start the package
+julia main.jl
+
+# Analyze any graph file interactively
+julia> run_graph_interactive("path/to/file.txt")
+
+# Generate and analyze new research instance
+julia> research_pipeline(5, 15, seed=123)
+
+# One-liner analysis (no prompts)
+julia -e "include(\"main.jl\"); run_graph_interactive(\"research/your_file.txt\")"
+
+# Analyze specific research files
+julia> run_graph_interactive("research/research_5vars_10clauses_seed100.txt")   # Easy
+julia> run_graph_interactive("research/research_5vars_21clauses_seed200.txt")   # Critical
+julia> run_graph_interactive("research/research_5vars_30clauses_seed300.txt")   # Hard
+```
+
 ## 📁 Directory Structure
 
 ```
@@ -83,6 +105,19 @@ julia> research_pipeline(5, 15, seed=123)
 julia> research_pipeline(5, 10, seed=100)  # Easy
 julia> research_pipeline(5, 21, seed=200)  # Critical  
 julia> research_pipeline(5, 30, seed=300)  # Hard
+```
+
+### Analyzing Research Files
+```julia
+# Interactive analysis of generated research instances
+julia> run_graph_interactive("research/research_5vars_10clauses_seed100.txt")
+
+# Compare different difficulty regions
+julia> run_graph_interactive("research/research_5vars_21clauses_seed200.txt")  # Critical
+julia> run_graph_interactive("research/research_5vars_30clauses_seed300.txt")  # Hard
+
+# One-liner for quick analysis
+julia -e "include(\"main.jl\"); run_graph_interactive(\"research/your_file.txt\")"
 ```
 
 ### Custom 3-SAT Generation

@@ -22,15 +22,20 @@ function research_pipeline(num_vars::Int, num_clauses::Int; seed=nothing, intera
     println("🎲 Step 1: Generating random 3-SAT instance...")
     instance = generate_random_3sat(num_vars, num_clauses, seed=seed)
     
-    # Step 2: Save markdown
+    # Step 2: Save markdown (ensure research directory exists)
+    research_dir = "research"
+    if !isdir(research_dir)
+        mkdir(research_dir)
+    end
+    
     filename_base = "research_$(num_vars)vars_$(num_clauses)clauses"
     if seed !== nothing
         filename_base *= "_seed$seed"
     end
     
-    md_file = "$filename_base.md"
-    graph_file = "$filename_base.txt"
-    mapping_file = "$(filename_base)_mapping.txt"
+    md_file = "$research_dir/$filename_base.md"
+    graph_file = "$research_dir/$filename_base.txt"
+    mapping_file = "$research_dir/$(filename_base)_mapping.txt"
     
     println("💾 Step 2: Saving files...")
     println("   - Markdown: $md_file")
@@ -103,29 +108,31 @@ function run_research_examples()
     println("🏁 All research examples completed!")
 end
 
-# Command line interface
-if length(ARGS) == 0
-    println("🚀 Usage examples:")
-    println("   julia research_pipeline.jl                    # Run research examples")
-    println("   julia research_pipeline.jl 5 15              # 5 vars, 15 clauses")
-    println("   julia research_pipeline.jl 5 15 123          # With seed")
-    println("   julia research_pipeline.jl 5 15 123 interactive  # Interactive mode")
-    println()
-    
-    print("🤔 Run research examples? (y/n): ")
-    response = readline()
-    if lowercase(strip(response)) in ["y", "yes", ""]
-        run_research_examples()
+# Command line interface - only run when called as a script, not when included
+if abspath(PROGRAM_FILE) == @__FILE__
+    if length(ARGS) == 0
+        println("🚀 Usage examples:")
+        println("   julia research_pipeline.jl                    # Run research examples")
+        println("   julia research_pipeline.jl 5 15              # 5 vars, 15 clauses")
+        println("   julia research_pipeline.jl 5 15 123          # With seed")
+        println("   julia research_pipeline.jl 5 15 123 interactive  # Interactive mode")
+        println()
+        
+        print("🤔 Run research examples? (y/n): ")
+        response = readline()
+        if lowercase(strip(response)) in ["y", "yes", ""]
+            run_research_examples()
+        end
+        
+    elseif length(ARGS) >= 2
+        num_vars = parse(Int, ARGS[1])
+        num_clauses = parse(Int, ARGS[2])
+        seed = length(ARGS) >= 3 ? parse(Int, ARGS[3]) : nothing
+        interactive = length(ARGS) >= 4 && ARGS[4] == "interactive"
+        
+        research_pipeline(num_vars, num_clauses, seed=seed, interactive=interactive)
+    else
+        println("❌ Error: Need at least 2 arguments (num_vars, num_clauses)")
+        println("   Example: julia research_pipeline.jl 5 15")
     end
-    
-elseif length(ARGS) >= 2
-    num_vars = parse(Int, ARGS[1])
-    num_clauses = parse(Int, ARGS[2])
-    seed = length(ARGS) >= 3 ? parse(Int, ARGS[3]) : nothing
-    interactive = length(ARGS) >= 4 && ARGS[4] == "interactive"
-    
-    research_pipeline(num_vars, num_clauses, seed=seed, interactive=interactive)
-else
-    println("❌ Error: Need at least 2 arguments (num_vars, num_clauses)")
-    println("   Example: julia research_pipeline.jl 5 15")
 end

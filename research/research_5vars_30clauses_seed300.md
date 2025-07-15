@@ -46,3 +46,7 @@
 - Generated: random
 
 - Seed: 300
+
+## SAT Solving Results
+- Satisfiable: NO
+- Solve time: 0.0s

@@ -184,35 +184,41 @@ end
 # Example usage
 println("=== 3-SAT Markdown Generator ===")
 
+# Ensure examples directory exists
+examples_dir = "examples"
+if !isdir(examples_dir)
+    mkdir(examples_dir)
+end
+
 # Generate a random instance
 instance = generate_random_3sat(4, 6, seed=123)
 
 # Convert to markdown and save
 md_content = to_markdown(instance, "Random 4-variable, 6-clause Instance")
-open("example_3sat.md", "w") do f
+open("$examples_dir/example_3sat.md", "w") do f
     write(f, md_content)
 end
-println("✓ Saved Markdown to example_3sat.md")
+println("✓ Saved Markdown to $examples_dir/example_3sat.md")
 
 # Convert to graph format and save
 graph_content, node_mapping = sat3_to_graph(instance)
-open("example_3sat_graph.txt", "w") do f
+open("$examples_dir/example_3sat_graph.txt", "w") do f
     write(f, graph_content)
 end
-println("✓ Saved Graph to example_3sat_graph.txt")
+println("✓ Saved Graph to $examples_dir/example_3sat_graph.txt")
 
 # Save node mapping
-open("example_3sat_mapping.txt", "w") do f
+open("$examples_dir/example_3sat_mapping.txt", "w") do f
     for (node, literal) in sort(collect(node_mapping))
         write(f, "Node $node: $literal\n")
     end
 end
-println("✓ Saved Node Mapping to example_3sat_mapping.txt")
+println("✓ Saved Node Mapping to $examples_dir/example_3sat_mapping.txt")
 
 println("\n=== Files Created ===")
-println("1. example_3sat.md - Human-readable 3-SAT instance")
-println("2. example_3sat_graph.txt - Graph format for community detection")
-println("3. example_3sat_mapping.txt - Node to literal mapping")
+println("1. $examples_dir/example_3sat.md - Human-readable 3-SAT instance")
+println("2. $examples_dir/example_3sat_graph.txt - Graph format for community detection")
+println("3. $examples_dir/example_3sat_mapping.txt - Node to literal mapping")
 
 println("\n=== Preview of Markdown File ===")
 println(md_content[1:min(length(md_content), 500)])

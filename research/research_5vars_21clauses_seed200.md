@@ -37,3 +37,8 @@
 - Generated: random
 
 - Seed: 200
+
+## SAT Solving Results
+- Satisfiable: YES
+- Solve time: 0.0s
+- Solution: x1=F, x2=F, x3=F, x4=F, x5=T
