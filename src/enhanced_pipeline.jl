@@ -205,9 +205,8 @@ function write_graph_file(filename::String, graph_data)
     end
     
     open(filename, "w") do io
-        # Write header: nodes edges max_weight
-        max_weight = maximum([edge[3] for edge in graph_data.edges]; init=1)
-        println(io, "$(graph_data.nodes) $(length(graph_data.edges)) $max_weight")
+        # Write header with comment prefix to avoid parsing as edge
+        println(io, "# Graph: $(graph_data.nodes) nodes, $(length(graph_data.edges)) edges, max_weight=$(maximum([edge[3] for edge in graph_data.edges]; init=1))")
         
         # Write edges: node1 node2 weight
         for (node1, node2, weight) in graph_data.edges

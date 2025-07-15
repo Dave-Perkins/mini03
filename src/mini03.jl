@@ -235,10 +235,11 @@ println("🚀 Quick start:")
 println("   julia> run_graph(\"graph03.txt\")")
 println("   julia> run_graph_interactive(\"graph03.txt\")")
 println()
-println("📁 Available graph files:")
-for file in readdir(".")
-    if endswith(file, ".txt") && startswith(file, "graph")
-        println("   • $file")
-    end
-end
+# Commented out - no longer showing available graph files by default
+# println("📁 Available graph files:")
+# for file in readdir(".")
+#     if endswith(file, ".txt") && startswith(file, "graph")
+#         println("   • $file")
+#     end
+# end
 println("="^50)

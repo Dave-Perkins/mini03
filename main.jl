@@ -78,19 +78,19 @@ println("   julia> research_pipeline(5, 15, seed=123)")
 println("   julia> solve_3sat(\"research/research_5vars_15clauses_seed123.md\")")
 println()
 
-# List available graph files
-println("📁 Available graph files:")
-println("=" ^60)
-graph_dir = "graphs"
-if isdir(graph_dir)
-    for file in readdir(graph_dir)
-        if endswith(file, ".txt")
-            println("   • graphs/$file")
-        end
-    end
-else
-    println("   (No graphs directory found)")
-end
+# Commented out - no longer showing available graph files by default
+# println("📁 Available graph files:")
+# println("=" ^60)
+# graph_dir = "graphs"
+# if isdir(graph_dir)
+#     for file in readdir(graph_dir)
+#         if endswith(file, ".txt")
+#             println("   • graphs/$file")
+#         end
+#     end
+# else
+#     println("   (No graphs directory found)")
+# end
 
 research_dir = "research"  
 if isdir(research_dir)
